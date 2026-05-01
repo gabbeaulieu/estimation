@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estimation Électrique</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f0f11;
+  --surface: #1a1a1f;
+  --surface2: #222228;
+  --border: #2e2e38;
+  --accent: #f5c842;
+  --accent2: #e8a020;
+  --text: #f0f0f0;
+  --text2: #9090a0;
+  --text3: #606070;
+  --danger: #e05555;
+  --success: #4caf82;
+  --radius: 10px;
+  --mono: 'DM Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+}
+
+/* Layout */
+.shell { display: flex; min-height: 100vh; }
+
+.sidebar {
+  width: 220px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 0;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 10;
+}
+
+.logo {
+  padding: 0 20px 24px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+.logo-icon {
+  width: 32px; height: 32px;
+  background: var(--accent);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+.logo-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.logo-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+  color: var(--text2);
+  font-size: 13px;
+  font-weight: 400;
+  border-left: 2px solid transparent;
+  transition: all 0.15s;
+}
+.nav-item:hover { color: var(--text); background: var(--surface2); }
+.nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(245,200,66,0.06); }
+.nav-icon { font-size: 15px; width: 18px; text-align: center; }
+
+.nav-section {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text3);
+  padding: 16px 20px 6px;
+}
+
+.main { margin-left: 220px; flex: 1; padding: 32px; max-width: 1100px; }
+
+/* Header */
+.page-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 28px;
+}
+.page-title { font-size: 22px; font-weight: 600; }
+.page-sub { font-size: 13px; color: var(--text2); margin-top: 3px; }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s;
+  font-family: var(--sans);
+}
+.btn-primary { background: var(--accent); color: #111; }
+.btn-primary:hover { background: var(--accent2); }
+.btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+.btn-ghost:hover { border-color: var(--text3); }
+.btn-danger { background: rgba(224,85,85,0.15); color: var(--danger); border: 1px solid rgba(224,85,85,0.3); }
+.btn-danger:hover { background: rgba(224,85,85,0.25); }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px;
+}
+.card-title { font-size: 15px; font-weight: 500; }
+
+/* Grid */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+/* Stats */
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+}
+.stat-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+.stat-value { font-size: 26px; font-weight: 600; font-family: var(--mono); }
+.stat-accent { color: var(--accent); }
+
+/* Forms */
+.form-group { margin-bottom: 14px; }
+.form-label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 6px; font-weight: 500; }
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 12px;
+  color: var(--text);
+  font-size: 13px;
+  font-family: var(--sans);
+  transition: border-color 0.15s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.form-textarea { resize: vertical; min-height: 70px; }
+.form-select option { background: var(--surface); }
+
+/* Table */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+}
+td { padding: 11px 12px; border-bottom: 1px solid var(--border); font-size: 13px; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--surface2); }
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+}
+.badge-yellow { background: rgba(245,200,66,0.15); color: var(--accent); }
+.badge-green { background: rgba(76,175,130,0.15); color: var(--success); }
+
+/* Modal */
+.modal-bg {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.modal-bg.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 28px;
+  width: 560px;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  transform: translateY(12px);
+  transition: transform 0.2s;
+}
+.modal-bg.open .modal { transform: translateY(0); }
+.modal-title { font-size: 17px; font-weight: 600; margin-bottom: 20px; }
+.modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+
+/* Matériaux dans tâche */
+.mat-row {
+  display: grid; grid-template-columns: 1fr 80px 80px 28px;
+  gap: 8px; align-items: center; margin-bottom: 8px;
+}
+.mat-row select, .mat-row input { font-size: 12px; padding: 7px 8px; }
+.remove-btn {
+  background: none; border: none; color: var(--text3);
+  cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;
+  border-radius: 6px; width: 28px; height: 28px;
+}
+.remove-btn:hover { color: var(--danger); background: rgba(224,85,85,0.1); }
+
+/* Tâches dans projet */
+.task-row {
+  display: grid; grid-template-columns: 1fr 80px auto;
+  gap: 8px; align-items: center; margin-bottom: 8px;
+}
+.task-price { font-family: var(--mono); font-size: 13px; color: var(--accent); white-space: nowrap; }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 18px;
+  font-size: 13px; color: var(--text);
+  z-index: 200;
+  transform: translateY(60px); opacity: 0;
+  transition: all 0.3s;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.ok { border-left: 3px solid var(--success); }
+.toast.err { border-left: 3px solid var(--danger); }
+
+/* Loading */
+.loading { text-align: center; padding: 40px; color: var(--text3); }
+.spinner {
+  width: 28px; height: 28px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin: 0 auto 12px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Config */
+.config-box {
+  background: rgba(245,200,66,0.06);
+  border: 1px solid rgba(245,200,66,0.2);
+  border-radius: var(--radius);
+  padding: 24px;
+  max-width: 500px;
+  margin: 80px auto;
+  text-align: center;
+}
+.config-box h2 { font-size: 18px; margin-bottom: 8px; }
+.config-box p { color: var(--text2); font-size: 13px; margin-bottom: 20px; }
+
+/* Total line */
+.total-line {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 0; border-top: 1px solid var(--border);
+  font-weight: 600; font-size: 15px;
+  font-family: var(--mono);
+}
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+/* Config panel */
+.config-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.inline-row { display: flex; gap: 16px; align-items: flex-end; }
+.inline-row .form-group { flex: 1; margin-bottom: 0; }
+
+.empty-state { text-align: center; padding: 40px 20px; color: var(--text3); font-size: 13px; }
+.empty-icon { font-size: 28px; margin-bottom: 8px; }
+
+.money { font-family: var(--mono); }
+
+/* Page views */
+.page { display: none; }
+.page.active { display: block; }
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-name">Estimation</div>
+      <div class="logo-sub">Projets électriques</div>
+    </div>
+    <div class="nav-section">Navigation</div>
+    <div class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard">
+      <span class="nav-icon">◈</span> Tableau de bord
+    </div>
+    <div class="nav-item" onclick="showPage('materiaux')" id="nav-materiaux">
+      <span class="nav-icon">◧</span> Matériaux
+    </div>
+    <div class="nav-item" onclick="showPage('taches')" id="nav-taches">
+      <span class="nav-icon">◩</span> Tâches
+    </div>
+    <div class="nav-item" onclick="showPage('projets')" id="nav-projets">
+      <span class="nav-icon">◫</span> Projets
+    </div>
+    <div class="nav-section" style="margin-top:auto">Système</div>
+    <div class="nav-item" onclick="showPage('config')" id="nav-config">
+      <span class="nav-icon">◎</span> Configuration
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- Dashboard -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Tableau de bord</div>
+          <div class="page-sub">Vue d'ensemble de vos données</div>
+        </div>
+      </div>
+      <div class="grid-3" id="stats-grid">
+        <div class="stat-card"><div class="stat-label">Matériaux</div><div class="stat-value stat-accent" id="stat-mat">—</div></div>
+        <div class="stat-card"><div class="stat-label">Tâches</div><div class="stat-value stat-accent" id="stat-tach">—</div></div>
+        <div class="stat-card"><div class="stat-label">Projets</div><div class="stat-value stat-accent" id="stat-proj">—</div></div>
+      </div>
+      <div style="margin-top:24px">
+        <div class="card-title" style="margin-bottom:12px;font-size:13px;color:var(--text2);text-transform:uppercase;letter-spacing:.06em">Projets récents</div>
+        <div id="recent-projets"><div class="loading"><div class="spinner"></div>Chargement...</div></div>
+      </div>
+    </div>
+
+    <!-- Matériaux -->
+    <div class="page" id="page-materiaux">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Matériaux</div>
+          <div class="page-sub">Catalogue de matériaux avec prix unitaires</div>
+        </div>
+        <button class="btn btn-primary" onclick="openModalMat()">+ Nouveau matériau</button>
+      </div>
+      <div class="card" style="padding:0">
+        <div id="mat-list"><div class="loading"><div class="spinner"></div>Chargement...</div></div>
+      </div>
+    </div>
+
+    <!-- Tâches -->
+    <div class="page" id="page-taches">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Tâches</div>
+          <div class="page-sub">Bibliothèque de tâches réutilisables</div>
+        </div>
+        <button class="btn btn-primary" onclick="openModalTache()">+ Nouvelle tâche</button>
+      </div>
+      <div class="card" style="padding:0">
+        <div id="tache-list"><div class="loading"><div class="spinner"></div>Chargement...</div></div>
+      </div>
+    </div>
+
+    <!-- Projets -->
+    <div class="page" id="page-projets">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Projets</div>
+          <div class="page-sub">Estimations de projets électriques</div>
+        </div>
+        <button class="btn btn-primary" onclick="openModalProjet()">+ Nouveau projet</button>
+      </div>
+      <div class="card" style="padding:0">
+        <div id="projet-list"><div class="loading"><div class="spinner"></div>Chargement...</div></div>
+      </div>
+    </div>
+
+    <!-- Config -->
+    <div class="page" id="page-config">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Configuration</div>
+          <div class="page-sub">Paramètres de calcul et connexion Airtable</div>
+        </div>
+      </div>
+      <div class="config-panel">
+        <div class="card-title" style="margin-bottom:16px">Paramètres de tarification</div>
+        <div class="inline-row">
+          <div class="form-group">
+            <label class="form-label">Taux horaire ($/h)</label>
+            <input type="number" class="form-input" id="cfg-taux" placeholder="85" value="85">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Marge sur matériaux (%)</label>
+            <input type="number" class="form-input" id="cfg-marge" placeholder="20" value="20">
+          </div>
+          <button class="btn btn-primary" onclick="saveConfig()">Enregistrer</button>
+        </div>
+      </div>
+      <div class="config-panel">
+        <div class="card-title" style="margin-bottom:4px">Connexion Airtable</div>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:16px">Modifiez si vous changez de base</p>
+        <div class="form-group">
+          <label class="form-label">Token API</label>
+          <input type="password" class="form-input" id="cfg-token" value="">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Base ID</label>
+          <input type="text" class="form-input" id="cfg-baseid" value="">
+        </div>
+        <button class="btn btn-primary" onclick="saveAirtableConfig()">Mettre à jour</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODAL : Matériau -->
+<div class="modal-bg" id="modal-mat">
+  <div class="modal">
+    <div class="modal-title" id="modal-mat-title">Nouveau matériau</div>
+    <div class="form-group">
+      <label class="form-label">Nom du matériau</label>
+      <input type="text" class="form-input" id="mat-nom" placeholder="Ex: Fil 14-2 Romex">
+    </div>
+    <div class="grid-2">
+      <div class="form-group">
+        <label class="form-label">Prix unitaire ($)</label>
+        <input type="number" class="form-input" id="mat-prix" placeholder="0.00" step="0.01">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Unité</label>
+        <input type="text" class="form-input" id="mat-unite" placeholder="Ex: pied, unité, boîte">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-mat')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveMat(document.getElementById('modal-mat').dataset.fromTache==='1')">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL : Tâche -->
+<div class="modal-bg" id="modal-tache">
+  <div class="modal">
+    <div class="modal-title" id="modal-tache-title">Nouvelle tâche</div>
+    <div class="form-group">
+      <label class="form-label">Nom de la tâche</label>
+      <input type="text" class="form-input" id="tache-nom" placeholder="Ex: Installation prise 20A">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Temps (minutes)</label>
+      <input type="number" class="form-input" id="tache-heures" placeholder="30" step="1" min="0">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Matériaux requis</label>
+      <div id="tache-mat-rows"></div>
+      <div style="display:flex;gap:8px;margin-top:6px">
+        <button class="btn btn-ghost btn-sm" onclick="addMatRow()">+ Ajouter un matériau</button>
+        <button class="btn btn-ghost btn-sm" onclick="ouvrirNouveauMatDepuisTache()">+ Nouveau matériau</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <textarea class="form-textarea" id="tache-notes" placeholder="Remarques, conditions, inclusions..."></textarea>
+    </div>
+    <div class="divider"></div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text2)">
+      <span>Prix unitaire estimé</span>
+      <span class="money" id="tache-preview-price" style="color:var(--accent)">—</span>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-tache')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveTache()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL : Projet -->
+<div class="modal-bg" id="modal-projet">
+  <div class="modal">
+    <div class="modal-title" id="modal-projet-title">Nouveau projet</div>
+    <div class="grid-2">
+      <div class="form-group">
+        <label class="form-label">Nom du projet</label>
+        <input type="text" class="form-input" id="proj-nom" placeholder="Ex: Rénovation cuisine">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Client</label>
+        <input type="text" class="form-input" id="proj-client" placeholder="Nom du client">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Date</label>
+      <input type="date" class="form-input" id="proj-date">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tâches du projet</label>
+      <div id="proj-tache-rows"></div>
+      <button class="btn btn-ghost btn-sm" onclick="addTacheRow()" style="margin-top:6px">+ Ajouter une tâche</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <textarea class="form-textarea" id="proj-notes" placeholder="Remarques, conditions particulières..."></textarea>
+    </div>
+    <div class="divider"></div>
+    <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:600">
+      <span>Total estimé</span>
+      <span class="money" id="proj-preview-price" style="color:var(--accent)">0,00 $</span>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-projet')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveProjet()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL : Détail projet -->
+<div class="modal-bg" id="modal-detail">
+  <div class="modal">
+    <div class="modal-title" id="detail-title"></div>
+    <div id="detail-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-detail')">Fermer</button>
+      <button class="btn btn-primary" onclick="window.print()">Imprimer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Config ──────────────────────────────────────────
+let TOKEN = localStorage.getItem('at_token') || 'pata54UR6hzf8k5bO.32bee95534f6c295e496350575057de0dfb32c6d16eb6f2c45155371771adfec';
+let BASE_ID = localStorage.getItem('at_base') || 'appsMbRatB337D0zC';
+let TAUX = parseFloat(localStorage.getItem('taux') || '85');
+let MARGE = parseFloat(localStorage.getItem('marge') || '20');
+
+// Cache
+let materiaux = [], taches = [], projets = [];
+let editingId = null;
+
+// ── Airtable API ─────────────────────────────────────
+async function atFetch(table, method='GET', body=null, id='') {
+  const url = `https://api.airtable.com/v0/${BASE_ID}/${encodeURIComponent(table)}${id ? '/'+id : ''}`;
+  const opts = {
+    method,
+    headers: { 'Authorization': `Bearer ${TOKEN}`, 'Content-Type': 'application/json' }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(url, opts);
+  if (!res.ok) throw new Error(`Airtable: ${res.status}`);
+  return res.json();
+}
+
+async function atList(table) {
+  let records = [], offset = null;
+  do {
+    const url = new URL(`https://api.airtable.com/v0/${BASE_ID}/${encodeURIComponent(table)}`);
+    if (offset) url.searchParams.set('offset', offset);
+    const res = await fetch(url, { headers: { 'Authorization': `Bearer ${TOKEN}` } });
+    if (!res.ok) throw new Error(`Airtable ${res.status}`);
+    const data = await res.json();
+    records = records.concat(data.records || []);
+    offset = data.offset;
+  } while (offset);
+  return records;
+}
+
+// ── Navigation ───────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.getElementById('nav-'+name).classList.add('active');
+  if (name === 'materiaux') loadMateriaux();
+  if (name === 'taches') loadTaches();
+  if (name === 'projets') loadProjets();
+  if (name === 'dashboard') loadDashboard();
+  if (name === 'config') loadConfig();
+}
+
+// ── Toast ────────────────────────────────────────────
+function toast(msg, type='ok') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.className = 'toast', 2800);
+}
+
+// ── Modal ────────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  if (id === 'modal-mat') delete document.getElementById('modal-mat').dataset.fromTache;
+}
+
+// ── Format ───────────────────────────────────────────
+function fmt(n) { return (n||0).toLocaleString('fr-CA', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' $'; }
+
+function ouvrirNouveauMatDepuisTache() {
+  closeModal('modal-tache');
+  editingId = null;
+  document.getElementById('modal-mat-title').textContent = 'Nouveau matériau';
+  document.getElementById('mat-nom').value = '';
+  document.getElementById('mat-prix').value = '';
+  document.getElementById('mat-unite').value = '';
+  document.getElementById('modal-mat').dataset.fromTache = '1';
+  openModal('modal-mat');
+}
+
+function refreshMatRowSelects() {
+  document.querySelectorAll('#tache-mat-rows .mat-row select').forEach(sel => {
+    const currentVal = sel.value;
+    sel.innerHTML = materiaux.map(m => `<option value="${m.id}" ${m.id===currentVal?'selected':''}>${m.Nom} (${fmt(m['Prix unitaire'])}/${m['Unite']||'u'})</option>`).join('');
+  });
+  updateTachePreview();
+}
+
+// ── MATÉRIAUX ────────────────────────────────────────
+async function loadMateriaux() {
+  document.getElementById('mat-list').innerHTML = '<div class="loading"><div class="spinner"></div>Chargement...</div>';
+  try {
+    const records = await atList('Materiaux');
+    materiaux = records.map(r => ({ id: r.id, ...r.fields })).sort((a,b) => (a.Nom||'').localeCompare(b.Nom||'', 'fr'));
+    renderMateriaux();
+  } catch(e) { document.getElementById('mat-list').innerHTML = `<div class="loading">Erreur: ${e.message}</div>`; }
+}
+
+function renderMateriaux() {
+  const el = document.getElementById('mat-list');
+  if (!materiaux.length) { el.innerHTML = '<div class="empty-state"><div class="empty-icon">◧</div>Aucun matériau. Ajoutez-en un pour commencer.</div>'; return; }
+  el.innerHTML = `<div class="table-wrap"><table>
+    <thead><tr><th>Nom</th><th>Prix unitaire</th><th>Unité</th><th></th></tr></thead>
+    <tbody>${materiaux.map(m => `<tr>
+      <td>${m.Nom||''}</td>
+      <td class="money">${fmt(m['Prix unitaire'])}</td>
+      <td><span class="badge badge-yellow">${m['Unite']||'—'}</span></td>
+      <td style="text-align:right;white-space:nowrap">
+        <button class="btn btn-ghost btn-sm" onclick="editMat('${m.id}')">Modifier</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteMat('${m.id}')">Suppr.</button>
+      </td>
+    </tr>`).join('')}</tbody>
+  </table></div>`;
+}
+
+function openModalMat(id=null) {
+  editingId = id;
+  document.getElementById('modal-mat-title').textContent = id ? 'Modifier le matériau' : 'Nouveau matériau';
+  if (id) {
+    const m = materiaux.find(x => x.id === id);
+    document.getElementById('mat-nom').value = m.Nom||'';
+    document.getElementById('mat-prix').value = m['Prix unitaire']||'';
+    document.getElementById('mat-unite').value = m['Unite']||'';
+  } else {
+    document.getElementById('mat-nom').value = '';
+    document.getElementById('mat-prix').value = '';
+    document.getElementById('mat-unite').value = '';
+  }
+  openModal('modal-mat');
+}
+
+function editMat(id) { openModalMat(id); }
+
+async function saveMat(reopenTache=false) {
+  const nom = document.getElementById('mat-nom').value.trim();
+  const prixVal = document.getElementById('mat-prix').value;
+  const unite = document.getElementById('mat-unite').value.trim();
+  if (!nom) { toast('Entrez un nom', 'err'); return; }
+  const fields = { Nom: nom };
+  if (prixVal !== '') fields['Prix unitaire'] = parseFloat(prixVal)||0;
+  if (unite !== '') fields['Unite'] = unite;
+  try {
+    if (editingId) await atFetch('Materiaux', 'PATCH', { fields }, editingId);
+    else await atFetch('Materiaux', 'POST', { fields });
+    closeModal('modal-mat');
+    toast(editingId ? 'Matériau mis à jour' : 'Matériau ajouté');
+    materiaux = (await atList('Materiaux')).map(r => ({ id: r.id, ...r.fields }));
+    if (reopenTache) {
+      refreshMatRowSelects();
+      openModal('modal-tache');
+    } else {
+      renderMateriaux();
+    }
+  } catch(e) { toast('Erreur: '+e.message, 'err'); }
+}
+
+async function deleteMat(id) {
+  if (!confirm('Supprimer ce matériau ?')) return;
+  try {
+    await atFetch('Materiaux', 'DELETE', null, id);
+    toast('Matériau supprimé');
+    loadMateriaux();
+  } catch(e) { toast('Erreur: '+e.message, 'err'); }
+}
+
+// ── TÂCHES ───────────────────────────────────────────
+async function loadTaches() {
+  document.getElementById('tache-list').innerHTML = '<div class="loading"><div class="spinner"></div>Chargement...</div>';
+  try {
+    if (!materiaux.length) materiaux = (await atList('Materiaux')).map(r => ({ id: r.id, ...r.fields }));
+    const records = await atList('Taches');
+    taches = records.map(r => ({ id: r.id, ...r.fields })).sort((a,b) => (a.Nom||'').localeCompare(b.Nom||'', 'fr'));
+    renderTaches();
+  } catch(e) { document.getElementById('tache-list').innerHTML = `<div class="loading">Erreur: ${e.message}</div>`; }
+}
+
+function renderTaches() {
+  const el = document.getElementById('tache-list');
+  if (!taches.length) { el.innerHTML = '<div class="empty-state"><div class="empty-icon">◩</div>Aucune tâche. Créez votre première tâche.</div>'; return; }
+  el.innerHTML = `<div class="table-wrap"><table>
+    <thead><tr><th>Nom</th><th>Minutes</th><th>Matériaux</th><th>Prix unitaire</th><th></th></tr></thead>
+    <tbody>${taches.map(t => `<tr>
+      <td>${t.Nom||''}</td>
+      <td>${t.Heures||0} min</td>
+      <td><span class="badge badge-yellow">${countMats(t.Materiaux)} item(s)</span></td>
+      <td class="money">${fmt(t['Prix unitaire'])}</td>
+      <td style="text-align:right;white-space:nowrap">
+        <button class="btn btn-ghost btn-sm" onclick="editTache('${t.id}')">Modifier</button>
+        <button class="btn btn-ghost btn-sm" onclick="dupliquerTache('${t.id}')">Dupliquer</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteTache('${t.id}')">Suppr.</button>
+      </td>
+    </tr>`).join('')}</tbody>
+  </table></div>`;
+}
+
+function countMats(json) {
+  try { return JSON.parse(json||'[]').length; } catch { return 0; }
+}
+
+function openModalTache(id=null) {
+  editingId = id;
+  document.getElementById('modal-tache-title').textContent = id ? 'Modifier la tâche' : 'Nouvelle tâche';
+  document.getElementById('tache-mat-rows').innerHTML = '';
+  if (id) {
+    const t = taches.find(x => x.id === id);
+    document.getElementById('tache-nom').value = t.Nom||'';
+    document.getElementById('tache-heures').value = t.Heures||'';
+    document.getElementById('tache-notes').value = t.Notes||'';
+    try { JSON.parse(t.Materiaux||'[]').forEach(m => addMatRow(m)); } catch {}
+  } else {
+    document.getElementById('tache-nom').value = '';
+    document.getElementById('tache-heures').value = '';
+    document.getElementById('tache-notes').value = '';
+  }
+  updateTachePreview();
+  openModal('modal-tache');
+}
+
+function editTache(id) { openModalTache(id); }
+
+function addMatRow(data=null) {
+  const row = document.createElement('div');
+  row.className = 'mat-row';
+  const opts = materiaux.map(m => `<option value="${m.id}" ${data && data.matId===m.id ? 'selected' : ''}>${m.Nom} (${fmt(m['Prix unitaire'])}/${m['Unite']||'u'})</option>`).join('');
+  row.innerHTML = `
+    <select class="form-input" onchange="updateTachePreview()">${opts}</select>
+    <input type="number" class="form-input" placeholder="Qté" step="0.01" value="${data ? data.qty : 1}" oninput="updateTachePreview()">
+    <div style="font-size:11px;color:var(--text2);font-family:var(--mono)" class="mat-subtotal">—</div>
+    <button class="remove-btn" onclick="this.parentElement.remove();updateTachePreview()">×</button>`;
+  document.getElementById('tache-mat-rows').appendChild(row);
+  updateTachePreview();
+}
+
+function getTacheMateriaux() {
+  return [...document.querySelectorAll('#tache-mat-rows .mat-row')].map(row => {
+    const sel = row.querySelector('select');
+    const qty = parseFloat(row.querySelector('input').value)||0;
+    const mat = materiaux.find(m => m.id === sel.value);
+    return { matId: sel.value, nomMat: mat ? mat.Nom : '', qty, prixUnit: mat ? (mat['Prix unitaire']||0) : 0 };
+  });
+}
+
+function updateTachePreview() {
+  const minutes = parseFloat(document.getElementById('tache-heures').value)||0;
+  const mats = getTacheMateriaux();
+  let totalMat = 0;
+  document.querySelectorAll('#tache-mat-rows .mat-row').forEach((row, i) => {
+    const sub = mats[i] ? mats[i].qty * mats[i].prixUnit : 0;
+    totalMat += sub;
+    const st = row.querySelector('.mat-subtotal');
+    if (st) st.textContent = fmt(sub);
+  });
+  const prix = ((minutes / 60) * TAUX) + (totalMat * (1 + MARGE/100));
+  document.getElementById('tache-preview-price').textContent = fmt(prix);
+  return prix;
+}
+
+async function saveTache() {
+  const nom = document.getElementById('tache-nom').value;
+  const minutes = parseFloat(document.getElementById('tache-heures').value)||0;
+  const notes = document.getElementById('tache-notes').value;
+  if (!nom) { toast('Entrez un nom', 'err'); return; }
+  const mats = getTacheMateriaux();
+  const prix = updateTachePreview();
+  const fields = { Nom: nom, Heures: minutes, Materiaux: JSON.stringify(mats), 'Prix unitaire': Math.round(prix*100)/100 };
+  if (notes) fields.Notes = notes;
+  try {
+    if (editingId) await atFetch('Taches', 'PATCH', { fields }, editingId);
+    else await atFetch('Taches', 'POST', { fields });
+    closeModal('modal-tache');
+    toast(editingId ? 'Tâche mise à jour' : 'Tâche ajoutée');
+    loadTaches();
+  } catch(e) { toast('Erreur: '+e.message, 'err'); }
+}
+
+async function deleteTache(id) {
+  if (!confirm('Supprimer cette tâche ?')) return;
+  try {
+    await atFetch('Taches', 'DELETE', null, id);
+    toast('Tâche supprimée');
+    loadTaches();
+  } catch(e) { toast('Erreur: '+e.message, 'err'); }
+}
+
+async function dupliquerTache(id) {
+  const t = taches.find(x => x.id === id);
+  if (!t) return;
+  const fields = {
+    Nom: (t.Nom||'') + ' (copie)',
+    Heures: t.Heures||0,
+    Materiaux: t.Materiaux||'[]',
+    'Prix unitaire': t['Prix unitaire']||0
+  };
+  if (t.Notes) fields.Notes = t.Notes;
+  try {
+    await atFetch('Taches', 'POST', { fields });
+    toast('Tâche dupliquée');
+    loadTaches();
+  } catch(e) { toast('Erreur: '+e.message, 'err'); }
+}
+
+// ── PROJETS ──────────────────────────────────────────
+async function loadProjets() {
+  document.getElementById('projet-list').innerHTML = '<div class="loading"><div class="spinner"></div>Chargement...</div>';
+  try {
+    if (!taches.length) taches = (await atList('Taches')).map(r => ({ id: r.id, ...r.fields }));
+    const records = await atList('Projets');
+    projets = records.map(r => ({ id: r.id, ...r.fields })).sort((a,b) => (a.Nom||'').localeCompare(b.Nom||'', 'fr'));
+    renderProjets();
+  } catch(e) { document.getElementById('projet-list').innerHTML = `<div class="loading">Erreur: ${e.message}</div>`; }
+}
+
+function renderProjets() {
+  const el = document.getElementById('projet-list');
+  if (!projets.length) { el.innerHTML = '<div class="empty-state"><div class="empty-icon">◫</div>Aucun projet. Créez votre première estimation.</div>'; return; }
+  el.innerHTML = `<div class="table-wrap"><table>
+    <thead><tr><th>Projet</th><th>Client</th><th>Date</th><th>Tâches</th><th>Total</th><th></th></tr></thead>
+    <tbody>${projets.map(p => `<tr>
+      <td style="font-weight:500">${p.Nom||''}</td>
+      <td>${p.Client||'—'}</td>
+      <td>${p.Date||'—'}</td>
+      <td><span class="badge badge-green">${countMats(p.Taches)} tâche(s)</span></td>
+      <td class="money" style="font-weight:600;color:var(--accent)">${fmt(p['Prix total'])}</td>
+      <td style="text-align:right;white-space:nowrap">
+        <button class="btn btn-ghost btn-sm" onclick="detailProjet('${p.id}')">Détail</button>
+        <button class="btn btn-ghost btn-sm" onclick="editProjet('${p.id}')">Modifier</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteProjet('${p.id}')">Suppr.</button>
+      </td>
+    </tr>`).join('')}</tbody>
+  </table></div>`;
+}
+
+function openModalProjet(id=null) {
+  editingId = id;
+  document.getElementById('modal-projet-title').textContent = id ? 'Modifier le projet' : 'Nouveau projet';
+  document.getElementById('proj-tache-rows').innerHTML = '';
+  if (id) {
+    const p = projets.find(x => x.id === id);
+    document.getElementById('proj-nom').value = p.Nom||'';
+    document.getElementById('proj-client').value = p.Client||'';
+    document.getElementById('proj-date').value = p.Date||'';
+    document.getElementById('proj-notes').value = p.Notes||'';
+    try { JSON.parse(p.Taches||'[]').forEach(t => addTacheRow(t)); } catch {}
+  } else {
+    document.getElementById('proj-nom').value = '';
+    document.getElementById('proj-client').value = '';
+    document.getElementById('proj-date').value = new Date().toISOString().split('T')[0];
+    document.getElementById('proj-notes').value = '';
+  }
+  updateProjPreview();
+  openModal('modal-projet');
+}
+
+function editProjet(id) { openModalProjet(id); }
+
+function addTacheRow(data=null) {
+  const row = document.createElement('div');
+  row.className = 'task-row';
+  const opts = taches.map(t => `<option value="${t.id}" ${data && data.tacheId===t.id ? 'selected' : ''}>${t.Nom} — ${fmt(t['Prix unitaire'])}</option>`).join('');
+  row.innerHTML = `
+    <select class="form-input" onchange="updateProjPreview()">${opts}</select>
+    <input type="number" class="form-input" placeholder="Qté" min="1" step="1" value="${data ? data.qty : 1}" oninput="updateProjPreview()">
+    <div class="task-price">—</div>
+    <button class="remove-btn" onclick="this.parentElement.remove();updateProjPreview()">×</button>`;
+  document.getElementById('proj-tache-rows').appendChild(row);
+  updateProjPreview();
+}
+
+function getProjTaches() {
+  return [...document.querySelectorAll('#proj-tache-rows .task-row')].map(row => {
+    const sel = row.querySelector('select');
+    const qty = parseInt(row.querySelector('input').value)||1;
+    const tache = taches.find(t => t.id === sel.value);
+    return { tacheId: sel.value, nomTache: tache ? tache.Nom : '', qty, prixUnit: tache ? (tache['Prix unitaire']||0) : 0 };
+  });
+}
+
+function updateProjPreview() {
+  const items = getProjTaches();
+  let total = 0;
+  document.querySelectorAll('#proj-tache-rows .task-row').forEach((row, i) => {
+    const sub = items[i] ? items[i].qty * items[i].prixUnit : 0;
+    total += sub;
+    const tp = row.querySelector('.task-price');
+    if (tp) tp.textContent = fmt(sub);
+  });
+  document.getElementById('proj-preview-price').textContent = fmt(total);
+  return total;
+}
+
+async function saveProjet() {
+  const nom = document.getElementById('proj-nom').value;
+  if (!nom) { toast('Entrez un nom de projet', 'err'); return; }
+  const items = getProjTaches();
+  const total = updateProjPreview();
+  const fields = {
+    Nom: nom,
+    Client: document.getElementById('proj-client').value,
+    Date: document.getElementById('proj-date').value,
+    Notes: document.getElementById('proj-notes').value,
+    Taches: JSON.stringify(items),
+    'Prix total': Math.round(total*100)/100
+  };
+  try {
+    if (editingId) await atFetch('Projets', 'PATCH', { fields }, editingId);
+    else await atFetch('Projets', 'POST', { fields });
+    closeModal('modal-projet');
+    toast(editingId ? 'Projet mis à jour' : 'Projet créé');
+    loadProjets();
+  } catch(e) { toast('Erreur: '+e.message, 'err'); }
+}
+
+async function deleteProjet(id) {
+  if (!confirm('Supprimer ce projet ?')) return;
+  try {
+    await atFetch('Projets', 'DELETE', null, id);
+    toast('Projet supprimé');
+    loadProjets();
+  } catch(e) { toast('Erreur: '+e.message, 'err'); }
+}
+
+function detailProjet(id) {
+  const p = projets.find(x => x.id === id);
+  let items = [];
+  try { items = JSON.parse(p.Taches||'[]'); } catch {}
+  document.getElementById('detail-title').textContent = p.Nom || 'Projet';
+  let rows = items.map(item => `<tr>
+    <td>${item.nomTache||'—'}</td>
+    <td style="text-align:center">${item.qty}</td>
+    <td class="money" style="text-align:right">${fmt(item.prixUnit)}</td>
+    <td class="money" style="text-align:right;font-weight:600">${fmt(item.qty * item.prixUnit)}</td>
+  </tr>`).join('');
+  document.getElementById('detail-body').innerHTML = `
+    <div style="margin-bottom:16px;font-size:13px;color:var(--text2)">
+      <span>Client : <b style="color:var(--text)">${p.Client||'—'}</b></span>
+      &nbsp;&nbsp;|&nbsp;&nbsp;
+      <span>Date : <b style="color:var(--text)">${p.Date||'—'}</b></span>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Tâche</th><th style="text-align:center">Qté</th><th style="text-align:right">Prix unit.</th><th style="text-align:right">Sous-total</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>
+    <div class="total-line" style="margin-top:16px">
+      <span>Total du projet</span>
+      <span style="color:var(--accent)">${fmt(p['Prix total'])}</span>
+    </div>
+    ${p.Notes ? `<div style="margin-top:12px;font-size:12px;color:var(--text2);padding:12px;background:var(--surface2);border-radius:8px">${p.Notes}</div>` : ''}`;
+  openModal('modal-detail');
+}
+
+// ── DASHBOARD ────────────────────────────────────────
+async function loadDashboard() {
+  try {
+    const [rMat, rTach, rProj] = await Promise.all([atList('Materiaux'), atList('Taches'), atList('Projets')]);
+    materiaux = rMat.map(r => ({ id: r.id, ...r.fields }));
+    taches = rTach.map(r => ({ id: r.id, ...r.fields }));
+    projets = rProj.map(r => ({ id: r.id, ...r.fields }));
+    document.getElementById('stat-mat').textContent = materiaux.length;
+    document.getElementById('stat-tach').textContent = taches.length;
+    document.getElementById('stat-proj').textContent = projets.length;
+    const recent = projets.slice(-5).reverse();
+    if (!recent.length) {
+      document.getElementById('recent-projets').innerHTML = '<div class="empty-state"><div class="empty-icon">◫</div>Aucun projet pour l\'instant.</div>';
+    } else {
+      document.getElementById('recent-projets').innerHTML = `<div class="card" style="padding:0"><div class="table-wrap"><table>
+        <thead><tr><th>Projet</th><th>Client</th><th>Total</th></tr></thead>
+        <tbody>${recent.map(p => `<tr>
+          <td style="font-weight:500">${p.Nom||''}</td>
+          <td>${p.Client||'—'}</td>
+          <td class="money" style="color:var(--accent)">${fmt(p['Prix total'])}</td>
+        </tr>`).join('')}</tbody>
+      </table></div></div>`;
+    }
+  } catch(e) {
+    document.getElementById('recent-projets').innerHTML = `<div class="loading">Erreur de connexion Airtable: ${e.message}</div>`;
+  }
+}
+
+// ── CONFIG ───────────────────────────────────────────
+function loadConfig() {
+  document.getElementById('cfg-taux').value = TAUX;
+  document.getElementById('cfg-marge').value = MARGE;
+  document.getElementById('cfg-token').value = TOKEN;
+  document.getElementById('cfg-baseid').value = BASE_ID;
+}
+
+function saveConfig() {
+  TAUX = parseFloat(document.getElementById('cfg-taux').value)||85;
+  MARGE = parseFloat(document.getElementById('cfg-marge').value)||20;
+  localStorage.setItem('taux', TAUX);
+  localStorage.setItem('marge', MARGE);
+  toast('Paramètres enregistrés');
+}
+
+function saveAirtableConfig() {
+  TOKEN = document.getElementById('cfg-token').value;
+  BASE_ID = document.getElementById('cfg-baseid').value;
+  localStorage.setItem('at_token', TOKEN);
+  localStorage.setItem('at_base', BASE_ID);
+  toast('Connexion Airtable mise à jour');
+}
+
+// ── Init ─────────────────────────────────────────────
+loadDashboard();
+</script>
+</body>
+</html>
