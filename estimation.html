@@ -1,0 +1,1649 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estimation Électrique</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f4f5f7;
+  --surface: #ffffff;
+  --surface2: #eef0f3;
+  --border: #dde0e6;
+  --accent: #1a6ef5;
+  --accent2: #0f5ce0;
+  --text: #111827;
+  --text2: #5a6478;
+  --text3: #9aa0ae;
+  --danger: #dc3545;
+  --success: #1a9e6a;
+  --radius: 10px;
+  --mono: 'DM Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+}
+
+/* Layout */
+.shell { display: flex; min-height: 100vh; }
+
+.sidebar {
+  width: 220px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 0;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 10;
+}
+
+.logo {
+  padding: 0 20px 24px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+.logo-icon {
+  width: 32px; height: 32px;
+  background: var(--accent);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+.logo-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.logo-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+  color: var(--text2);
+  font-size: 13px;
+  font-weight: 400;
+  border-left: 2px solid transparent;
+  transition: all 0.15s;
+}
+.nav-item:hover { color: var(--text); background: var(--surface2); }
+.nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(26,110,245,0.07); }
+.nav-icon { font-size: 15px; width: 18px; text-align: center; }
+
+.nav-section {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text3);
+  padding: 16px 20px 6px;
+}
+
+.main { margin-left: 220px; flex: 1; padding: 32px; max-width: 1100px; }
+
+/* Header */
+.page-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 28px;
+}
+.page-title { font-size: 22px; font-weight: 600; }
+.page-sub { font-size: 13px; color: var(--text2); margin-top: 3px; }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s;
+  font-family: var(--sans);
+}
+.btn-primary { background: var(--accent); color: #ffffff; }
+.btn-primary:hover { background: var(--accent2); }
+.btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+.btn-ghost:hover { border-color: var(--text3); }
+.btn-danger { background: rgba(224,85,85,0.15); color: var(--danger); border: 1px solid rgba(224,85,85,0.3); }
+.btn-danger:hover { background: rgba(224,85,85,0.25); }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px;
+}
+.card-title { font-size: 15px; font-weight: 500; }
+
+/* Grid */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+/* Stats */
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+}
+.stat-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+.stat-value { font-size: 26px; font-weight: 600; font-family: var(--mono); }
+.stat-accent { color: var(--accent); }
+
+/* Forms */
+.form-group { margin-bottom: 14px; }
+.form-label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 6px; font-weight: 500; }
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 12px;
+  color: var(--text);
+  font-size: 13px;
+  font-family: var(--sans);
+  transition: border-color 0.15s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.form-textarea { resize: vertical; min-height: 70px; }
+.form-select option { background: var(--surface); }
+
+/* Table */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+}
+td { padding: 11px 12px; border-bottom: 1px solid var(--border); font-size: 13px; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--surface2); }
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+}
+.badge-yellow { background: rgba(26,110,245,0.1); color: var(--accent); }
+.badge-green { background: rgba(26,158,106,0.1); color: var(--success); }
+
+/* Modal */
+.modal-bg {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.modal-bg.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 28px;
+  width: 560px;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  transform: translateY(12px);
+  transition: transform 0.2s;
+}
+.modal-bg.open .modal { transform: translateY(0); }
+.modal-title { font-size: 17px; font-weight: 600; margin-bottom: 20px; }
+.modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+
+/* Matériaux dans tâche */
+.mat-row {
+  display: grid; grid-template-columns: 1fr 80px 80px 28px;
+  gap: 8px; align-items: start; margin-bottom: 8px;
+}
+.mat-row select, .mat-row input { font-size: 12px; padding: 7px 8px; }
+.mat-search-wrap { position: relative; }
+.mat-search-input {
+  width: 100%; background: var(--bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 7px 8px; color: var(--text);
+  font-size: 12px; font-family: var(--sans);
+}
+.mat-search-input:focus { outline: none; border-color: var(--accent); }
+.mat-dropdown {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; z-index: 50; max-height: 180px; overflow-y: auto;
+  display: none;
+}
+.mat-dropdown.open { display: block; }
+.mat-option {
+  padding: 8px 10px; font-size: 12px; cursor: pointer; color: var(--text);
+  border-bottom: 0.5px solid var(--border);
+}
+.mat-option:last-child { border-bottom: none; }
+.mat-option:hover, .mat-option.selected-opt { background: rgba(26,110,245,0.08); color: var(--accent); }
+.mat-option-empty { padding: 10px; font-size: 12px; color: var(--text3); text-align: center; }
+.remove-btn {
+  background: none; border: none; color: var(--text3);
+  cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;
+  border-radius: 6px; width: 28px; height: 28px; margin-top: 2px;
+}
+.remove-btn:hover { color: var(--danger); background: rgba(224,85,85,0.1); }
+
+/* Tâches dans projet (page) */
+.task-row {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px 18px; margin-bottom: 10px;
+  display: grid; grid-template-columns: 1fr 120px 160px 28px;
+  gap: 16px; align-items: center;
+  transition: border-color 0.15s;
+}
+.task-row:hover { border-color: var(--accent); }
+.task-row-name { font-size: 14px; font-weight: 500; color: var(--text); }
+.task-row-meta { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.task-price { font-family: var(--mono); font-size: 15px; font-weight: 700; color: var(--accent); white-space: nowrap; text-align: right; }
+.task-qty-wrap { display: flex; align-items: center; gap: 8px; }
+.task-row-pending { border-color: var(--accent); background: rgba(26,110,245,0.04); }
+.task-qty-label { font-size: 12px; color: var(--text2); white-space: nowrap; }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 18px;
+  font-size: 13px; color: var(--text);
+  z-index: 200;
+  transform: translateY(60px); opacity: 0;
+  transition: all 0.3s;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.ok { border-left: 3px solid var(--success); }
+.toast.err { border-left: 3px solid var(--danger); }
+
+/* Loading */
+.loading { text-align: center; padding: 40px; color: var(--text3); }
+.spinner {
+  width: 28px; height: 28px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin: 0 auto 12px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Config */
+.config-box {
+  background: rgba(26,110,245,0.04);
+  border: 1px solid rgba(26,110,245,0.15);
+  border-radius: var(--radius);
+  padding: 24px;
+  max-width: 500px;
+  margin: 80px auto;
+  text-align: center;
+}
+.config-box h2 { font-size: 18px; margin-bottom: 8px; }
+.config-box p { color: var(--text2); font-size: 13px; margin-bottom: 20px; }
+
+/* Total line */
+.total-line {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 0; border-top: 1px solid var(--border);
+  font-weight: 600; font-size: 15px;
+  font-family: var(--mono);
+}
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+/* Config panel */
+.config-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.inline-row { display: flex; gap: 16px; align-items: flex-end; }
+.inline-row .form-group { flex: 1; margin-bottom: 0; }
+
+.empty-state { text-align: center; padding: 40px 20px; color: var(--text3); font-size: 13px; }
+.empty-icon { font-size: 28px; margin-bottom: 8px; }
+
+.money { font-family: var(--mono); }
+
+/* Page views */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ── MOBILE ──────────────────────────────────────── */
+
+/* Barre de navigation mobile en bas */
+.mobile-nav {
+  display: none;
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--surface); border-top: 1px solid var(--border);
+  z-index: 50; padding: 0;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.mobile-nav-items {
+  display: flex; justify-content: space-around; align-items: stretch;
+}
+.mobile-nav-item {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  gap: 3px; padding: 10px 4px 8px;
+  cursor: pointer; color: var(--text3);
+  font-size: 10px; font-weight: 500;
+  border: none; background: none;
+  transition: color 0.15s;
+}
+.mobile-nav-item.active { color: var(--accent); }
+.mobile-nav-icon { font-size: 20px; line-height: 1; }
+
+@media (max-width: 768px) {
+  /* Cacher sidebar, afficher nav mobile */
+  .sidebar { display: none; }
+  .mobile-nav { display: block; }
+  .main {
+    margin-left: 0;
+    padding: 16px 14px 80px;
+    max-width: 100%;
+  }
+
+  /* Page header empilé */
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .page-header .btn { width: 100%; justify-content: center; }
+
+  /* Grilles → 1 colonne */
+  .grid-2 { grid-template-columns: 1fr; }
+  .grid-3 { grid-template-columns: 1fr; }
+  .inline-row { flex-direction: column; }
+
+  /* Formulaire projet - infos générales */
+  #page-form-projet .card > div[style*="grid-template-columns:repeat(4"] {
+    display: flex !important; flex-direction: column; gap: 12px;
+  }
+  #page-form-projet .card > div[style*="grid-template-columns:1fr 1fr"] {
+    display: flex !important; flex-direction: column; gap: 12px;
+  }
+
+  /* Stats dashboard */
+  #stats-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 10px; }
+  .stat-value { font-size: 20px; }
+  .stat-card { padding: 12px 14px; }
+
+  /* Tables → cards sur mobile */
+  .table-wrap table thead { display: none; }
+  .table-wrap table tr {
+    display: block;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    padding: 12px 14px;
+  }
+  .table-wrap table td {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 5px 0; border-bottom: none;
+    font-size: 13px;
+  }
+  .table-wrap table td:before {
+    content: attr(data-label);
+    font-size: 11px; font-weight: 600;
+    color: var(--text3); text-transform: uppercase;
+    letter-spacing: 0.06em; flex-shrink: 0; margin-right: 10px;
+  }
+  .table-wrap table td:last-child {
+    justify-content: flex-end; gap: 6px; flex-wrap: wrap; padding-top: 10px;
+  }
+  .table-wrap table td:last-child:before { display: none; }
+  tr:hover td { background: transparent; }
+
+  /* Modals plein écran sur mobile */
+  .modal {
+    width: 100vw; max-width: 100vw;
+    max-height: 95vh;
+    border-radius: 20px 20px 0 0;
+    padding: 20px 16px;
+    position: fixed; bottom: 0; left: 0;
+  }
+  .modal-bg { align-items: flex-end; }
+
+  /* Mat-row dans tâche → empilé */
+  .mat-row {
+    grid-template-columns: 1fr 60px 28px;
+    grid-template-rows: auto auto;
+  }
+  .mat-row .mat-subtotal { grid-column: 2; font-size: 11px; text-align: right; }
+
+  /* Task-row dans projet */
+  .task-row {
+    grid-template-columns: 1fr 80px 28px;
+    grid-template-rows: auto auto;
+    padding: 12px 14px;
+    gap: 10px;
+  }
+  .task-row > div:first-child { grid-column: 1 / -1; }
+  .task-price { font-size: 13px; }
+
+  /* Barre de totaux projet */
+  #proj-totals-bar {
+    padding: 12px 14px 16px !important;
+    margin: 0 -14px -80px !important;
+    gap: 16px !important;
+    flex-wrap: wrap;
+    justify-content: space-between !important;
+  }
+  #proj-totals-bar > div { min-width: calc(50% - 10px); }
+  #proj-totals-bar > div[style*="width:1px"] { display: none; }
+
+  /* Proj-meta-bar détail */
+  .proj-meta-bar { flex-wrap: wrap; }
+  .proj-meta-item {
+    min-width: calc(50% - 0px);
+    padding: 12px 16px;
+    border-right: none !important;
+    border-bottom: 1px solid var(--border);
+  }
+  .proj-meta-item:nth-child(odd) { border-right: 1px solid var(--border) !important; }
+
+  /* Tache-card body → 2 colonnes */
+  .tache-card-body { grid-template-columns: 1fr 1fr; gap: 14px; }
+  .tache-card-nom { font-size: 13px; }
+  .tache-card-total { font-size: 15px; }
+
+  /* Config panel */
+  .config-panel .inline-row { flex-direction: column; }
+
+  /* Toast au-dessus de la nav mobile */
+  .toast { bottom: 80px; right: 14px; left: 14px; }
+
+  /* Inputs et boutons plus grands pour le touch */
+  .form-input, .form-select, .form-textarea {
+    font-size: 16px;
+    padding: 11px 12px;
+  }
+  .btn { padding: 11px 16px; font-size: 14px; }
+  .btn-sm { padding: 8px 12px; font-size: 13px; }
+  .remove-btn { width: 36px; height: 36px; font-size: 18px; }
+}
+
+
+/* Détail projet */
+.proj-meta-bar {
+  display: flex; gap: 0; flex-wrap: wrap;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); margin-bottom: 20px;
+  align-items: stretch; overflow: hidden;
+}
+.proj-meta-item {
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 18px 24px; border-right: 1px solid var(--border);
+  flex: 1; min-width: 120px;
+}
+.proj-meta-item:last-child { border-right: none; }
+.proj-meta-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.07em; }
+.proj-meta-val { font-size: 16px; font-weight: 600; color: var(--text); font-family: var(--mono); }
+.proj-notes-bar {
+  background: var(--surface); border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius); padding: 14px 18px;
+  font-size: 13px; color: var(--text2); margin-bottom: 20px;
+}
+.tache-cards-grid { display: flex; flex-direction: column; gap: 10px; }
+.tache-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.tache-card:hover { border-color: var(--accent); box-shadow: 0 2px 12px rgba(26,110,245,0.06); }
+.tache-card-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 20px; background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+.tache-card-left { display: flex; align-items: center; gap: 14px; }
+.tache-card-qty {
+  background: var(--accent); color: #fff;
+  font-size: 13px; font-weight: 700; min-width: 32px; height: 32px;
+  border-radius: 6px; display: flex; align-items: center;
+  justify-content: center; font-family: var(--mono); padding: 0 6px;
+}
+.tache-card-nom { font-size: 15px; font-weight: 600; color: var(--text); }
+.tache-card-total { font-size: 18px; font-weight: 700; color: var(--accent); font-family: var(--mono); }
+.tache-card-body { padding: 16px 20px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.tache-card-detail { display: flex; flex-direction: column; gap: 5px; }
+.tache-detail-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.07em; }
+.tache-detail-val { font-size: 14px; color: var(--text); font-weight: 500; }
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-name">Estimation</div>
+      <div class="logo-sub">Projets électriques</div>
+    </div>
+    <div class="nav-section">Navigation</div>
+    <div class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard">
+      <span class="nav-icon">◈</span> Tableau de bord
+    </div>
+    <div class="nav-item" onclick="showPage('materiaux')" id="nav-materiaux">
+      <span class="nav-icon">◧</span> Matériaux
+    </div>
+    <div class="nav-item" onclick="showPage('taches')" id="nav-taches">
+      <span class="nav-icon">◩</span> Tâches
+    </div>
+    <div class="nav-item" onclick="showPage('projets')" id="nav-projets">
+      <span class="nav-icon">◫</span> Projets
+    </div>
+    <div class="nav-section" style="margin-top:auto">Système</div>
+    <div class="nav-item" onclick="showPage('config')" id="nav-config">
+      <span class="nav-icon">◎</span> Configuration
+    </div>
+    <div id="nav-detail-projet" style="display:none"></div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- Dashboard -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Tableau de bord</div>
+          <div class="page-sub">Vue d'ensemble de vos données</div>
+        </div>
+      </div>
+      <div class="grid-3" id="stats-grid">
+        <div class="stat-card"><div class="stat-label">Matériaux</div><div class="stat-value stat-accent" id="stat-mat">—</div></div>
+        <div class="stat-card"><div class="stat-label">Tâches</div><div class="stat-value stat-accent" id="stat-tach">—</div></div>
+        <div class="stat-card"><div class="stat-label">Projets</div><div class="stat-value stat-accent" id="stat-proj">—</div></div>
+      </div>
+      <div style="margin-top:24px">
+        <div class="card-title" style="margin-bottom:12px;font-size:13px;color:var(--text2);text-transform:uppercase;letter-spacing:.06em">Projets récents</div>
+        <div id="recent-projets"><div class="loading"><div class="spinner"></div>Chargement...</div></div>
+      </div>
+    </div>
+
+    <!-- Matériaux -->
+    <div class="page" id="page-materiaux">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Matériaux</div>
+          <div class="page-sub">Catalogue de matériaux avec prix unitaires</div>
+        </div>
+        <button class="btn btn-primary" onclick="openModalMat()">+ Nouveau matériau</button>
+      </div>
+      <div class="card" style="padding:0">
+        <div id="mat-list"><div class="loading"><div class="spinner"></div>Chargement...</div></div>
+      </div>
+    </div>
+
+    <!-- Tâches -->
+    <div class="page" id="page-taches">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Tâches</div>
+          <div class="page-sub">Bibliothèque de tâches réutilisables</div>
+        </div>
+        <button class="btn btn-primary" onclick="openModalTache()">+ Nouvelle tâche</button>
+      </div>
+      <div class="card" style="padding:0">
+        <div id="tache-list"><div class="loading"><div class="spinner"></div>Chargement...</div></div>
+      </div>
+    </div>
+
+    <!-- Projets -->
+    <div class="page" id="page-projets">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Projets</div>
+          <div class="page-sub">Estimations de projets électriques</div>
+        </div>
+        <button class="btn btn-primary" onclick="ouvrirFormProjet()">+ Nouveau projet</button>
+      </div>
+      <div class="card" style="padding:0">
+        <div id="projet-list"><div class="loading"><div class="spinner"></div>Chargement...</div></div>
+      </div>
+    </div>
+
+    <!-- Formulaire Projet (nouveau / modifier) -->
+    <div class="page" id="page-form-projet">
+      <div class="page-header">
+        <div style="display:flex;align-items:center;gap:12px">
+          <button class="btn btn-ghost btn-sm" onclick="showPage('projets')" style="padding:6px 10px">← Retour</button>
+          <div>
+            <div class="page-title" id="form-proj-titre">Nouveau projet</div>
+            <div class="page-sub" id="form-proj-sub">Remplissez les informations du projet</div>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="saveProjet()">Enregistrer le projet</button>
+      </div>
+
+      <div class="grid-2" style="gap:24px;align-items:start">
+        <!-- Colonne gauche : infos + tâches -->
+        <div style="grid-column:1/3">
+          <div class="card" style="margin-bottom:16px">
+            <div class="card-title" style="margin-bottom:16px">Informations générales</div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">Nom du projet</label>
+                <input type="text" class="form-input" id="proj-nom" placeholder="Ex: Rénovation cuisine">
+              </div>
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">Client</label>
+                <input type="text" class="form-input" id="proj-client" placeholder="Nom du client">
+              </div>
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">Taux horaire ($/h)</label>
+                <input type="number" class="form-input" id="proj-taux" step="0.50" min="0" oninput="updateProjPreview()">
+              </div>
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">Marge matériaux (%)</label>
+                <input type="number" class="form-input" id="proj-marge" step="1" min="0" max="200" oninput="updateProjPreview()">
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">Date</label>
+                <input type="date" class="form-input" id="proj-date">
+              </div>
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">Notes</label>
+                <input type="text" class="form-input" id="proj-notes" placeholder="Remarques, conditions particulières...">
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-bottom:16px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+              <div class="card-title">Tâches du projet</div>
+              <button class="btn btn-ghost btn-sm" onclick="addTacheRow()">+ Ajouter une tâche</button>
+            </div>
+            <div id="proj-tache-rows"></div>
+            <div id="proj-empty-taches" style="display:none" class="empty-state">
+              <div class="empty-icon">◩</div>Ajoutez des tâches pour calculer le prix du projet
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barre de totaux collante en bas -->
+      <div id="proj-totals-bar" style="
+        position:sticky;bottom:0;left:0;right:0;
+        background:var(--surface);border-top:2px solid var(--border);
+        padding:16px 32px;margin:0 -32px -32px;
+        display:flex;gap:32px;align-items:center;justify-content:flex-end;
+        box-shadow:0 -4px 20px rgba(0,0,0,0.06);
+      ">
+        <div style="display:flex;flex-direction:column;gap:2px;text-align:right">
+          <span style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em">Main d'oeuvre</span>
+          <span class="money" id="proj-preview-mo" style="font-size:15px;font-weight:600">0,00 $</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:2px;text-align:right">
+          <span style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em">Matériaux facturés</span>
+          <span class="money" id="proj-preview-mat" style="font-size:15px;font-weight:600">0,00 $</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:2px;text-align:right">
+          <span style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em">Profit matériaux</span>
+          <span class="money" id="proj-preview-profit" style="font-size:15px;font-weight:600;color:var(--success)">0,00 $</span>
+        </div>
+        <div style="width:1px;height:36px;background:var(--border)"></div>
+        <div style="display:flex;flex-direction:column;gap:2px;text-align:right">
+          <span style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em">Total estimé</span>
+          <span class="money" id="proj-preview-price" style="font-size:22px;font-weight:700;color:var(--accent)">0,00 $</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Détail Projet -->
+    <div class="page" id="page-detail-projet">
+      <div class="page-header">
+        <div style="display:flex;align-items:center;gap:12px">
+          <button class="btn btn-ghost btn-sm" onclick="showPage('projets')" style="padding:6px 10px">← Retour</button>
+          <div>
+            <div class="page-title" id="detail-proj-titre">—</div>
+            <div class="page-sub" id="detail-proj-sub">—</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost" onclick="editProjetCourant()">Modifier</button>
+          <button class="btn btn-primary" onclick="window.print()">Imprimer</button>
+        </div>
+      </div>
+      <div id="detail-proj-body"></div>
+    </div>
+
+    <!-- Config -->
+    <div class="page" id="page-config">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Configuration</div>
+          <div class="page-sub">Paramètres de calcul et connexion Supabase</div>
+        </div>
+      </div>
+      <div class="config-panel">
+        <div class="card-title" style="margin-bottom:4px">Valeurs par défaut des projets</div>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:16px">Ces valeurs seront pré-remplies à la création d'un nouveau projet. Chaque projet peut ensuite les modifier individuellement.</p>
+        <div class="inline-row">
+          <div class="form-group">
+            <label class="form-label">Taux horaire par défaut ($/h)</label>
+            <input type="number" class="form-input" id="cfg-taux" placeholder="85" value="85">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Marge sur matériaux par défaut (%)</label>
+            <input type="number" class="form-input" id="cfg-marge" placeholder="20" value="20">
+          </div>
+          <button class="btn btn-primary" onclick="saveConfig()">Enregistrer</button>
+        </div>
+      </div>
+      <div class="config-panel">
+        <div class="card-title" style="margin-bottom:4px">Connexion Supabase</div>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:16px">Modifiez si vous changez de projet Supabase</p>
+        <div class="form-group">
+          <label class="form-label">Clé API (anon key)</label>
+          <input type="password" class="form-input" id="cfg-token" value="">
+        </div>
+        <div class="form-group">
+          <label class="form-label">URL Supabase</label>
+          <input type="text" class="form-input" id="cfg-baseid" value="">
+        </div>
+        <button class="btn btn-primary" onclick="saveAirtableConfig()">Mettre à jour</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODAL : Matériau -->
+<div class="modal-bg" id="modal-mat">
+  <div class="modal">
+    <div class="modal-title" id="modal-mat-title">Nouveau matériau</div>
+    <div class="form-group">
+      <label class="form-label">Nom du matériau</label>
+      <input type="text" class="form-input" id="mat-nom" placeholder="Ex: Fil 14-2 Romex">
+    </div>
+    <div class="grid-2">
+      <div class="form-group">
+        <label class="form-label">Numéro de produit</label>
+        <input type="text" class="form-input" id="mat-numero" placeholder="Ex: 12345-A">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Unité</label>
+        <input type="text" class="form-input" id="mat-unite" placeholder="Ex: pied, unité, boîte">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Prix unitaire ($)</label>
+      <input type="number" class="form-input" id="mat-prix" placeholder="0.00" step="0.01">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-mat')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveMat(document.getElementById('modal-mat').dataset.fromTache==='1')">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL : Tâche -->
+<div class="modal-bg" id="modal-tache">
+  <div class="modal">
+    <div class="modal-title" id="modal-tache-title">Nouvelle tâche</div>
+    <div class="form-group">
+      <label class="form-label">Nom de la tâche</label>
+      <input type="text" class="form-input" id="tache-nom" placeholder="Ex: Installation prise 20A">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Temps (minutes)</label>
+      <input type="number" class="form-input" id="tache-heures" placeholder="30" step="1" min="0">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Matériaux requis</label>
+      <div id="tache-mat-rows"></div>
+      <div style="display:flex;gap:8px;margin-top:6px">
+        <button class="btn btn-ghost btn-sm" onclick="addMatRow()">+ Ajouter un matériau</button>
+        <button class="btn btn-ghost btn-sm" onclick="ouvrirNouveauMatDepuisTache()">+ Nouveau matériau</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <textarea class="form-textarea" id="tache-notes" placeholder="Remarques, conditions, inclusions..."></textarea>
+    </div>
+    <div class="divider"></div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text2)">
+      <span>Coût unitaire (matériaux au coûtant)</span>
+      <span class="money" id="tache-preview-price" style="color:var(--accent)">—</span>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-tache')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveTache()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Navigation mobile -->
+<nav class="mobile-nav">
+  <div class="mobile-nav-items">
+    <button class="mobile-nav-item active" onclick="showPage('dashboard')" id="mnav-dashboard">
+      <span class="mobile-nav-icon">◈</span>Accueil
+    </button>
+    <button class="mobile-nav-item" onclick="showPage('materiaux')" id="mnav-materiaux">
+      <span class="mobile-nav-icon">◧</span>Matériaux
+    </button>
+    <button class="mobile-nav-item" onclick="showPage('taches')" id="mnav-taches">
+      <span class="mobile-nav-icon">◩</span>Tâches
+    </button>
+    <button class="mobile-nav-item" onclick="showPage('projets')" id="mnav-projets">
+      <span class="mobile-nav-icon">◫</span>Projets
+    </button>
+    <button class="mobile-nav-item" onclick="showPage('config')" id="mnav-config">
+      <span class="mobile-nav-icon">◎</span>Config
+    </button>
+  </div>
+</nav>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Config ──────────────────────────────────────────
+let DEFAULT_TAUX = parseFloat(localStorage.getItem('default_taux') || '85');
+let DEFAULT_MARGE = parseFloat(localStorage.getItem('default_marge') || '20');
+
+// Cache
+let materiaux = [], taches = [], projets = [];
+let editingId = null;
+
+// ── Supabase API ─────────────────────────────────────
+const SB_URL = 'https://evedtzicsmrfleofpgvl.supabase.co/rest/v1';
+const SB_KEY = localStorage.getItem('sb_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2ZWR0emljc21yZmxlb2ZwZ3ZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwOTcyNTcsImV4cCI6MjA5MzY3MzI1N30.om4La8n_1a3xOtiO2P6Qzkb5yjkRhQbKa5KD-uZ-noQ';
+
+function sbHeaders(extra={}) {
+  return {
+    'apikey': SB_KEY,
+    'Authorization': `Bearer ${SB_KEY}`,
+    'Content-Type': 'application/json',
+    ...extra
+  };
+}
+
+async function sbList(table) {
+  const res = await fetch(`${SB_URL}/${table}?order=Nom`, {
+    headers: sbHeaders()
+  });
+  if (!res.ok) throw new Error(`Supabase ${table}: ${res.status} — ${await res.text()}`);
+  return res.json();
+}
+
+async function sbInsert(table, fields) {
+  const res = await fetch(`${SB_URL}/${table}`, {
+    method: 'POST',
+    headers: sbHeaders({ 'Prefer': 'return=representation' }),
+    body: JSON.stringify(fields)
+  });
+  if (!res.ok) throw new Error(`Supabase insert ${table}: ${await res.text()}`);
+  const data = await res.json();
+  return Array.isArray(data) ? data[0] : data;
+}
+
+async function sbUpdate(table, id, fields) {
+  const res = await fetch(`${SB_URL}/${table}?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: sbHeaders({ 'Prefer': 'return=minimal' }),
+    body: JSON.stringify(fields)
+  });
+  if (!res.ok) throw new Error(`Supabase update ${table}: ${await res.text()}`);
+  return true;
+}
+
+async function sbDelete(table, id) {
+  const res = await fetch(`${SB_URL}/${table}?id=eq.${id}`, {
+    method: 'DELETE',
+    headers: sbHeaders()
+  });
+  if (!res.ok) throw new Error(`Supabase delete ${table}: ${await res.text()}`);
+  return true;
+}
+
+// ── Navigation ───────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.mobile-nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  const navEl = document.getElementById('nav-'+name);
+  if (navEl) navEl.classList.add('active');
+  const mnavEl = document.getElementById('mnav-'+name);
+  if (mnavEl) mnavEl.classList.add('active');
+  if (name === 'materiaux') loadMateriaux();
+  if (name === 'taches') loadTaches();
+  if (name === 'projets') loadProjets();
+  if (name === 'dashboard') loadDashboard();
+  if (name === 'config') loadConfig();
+}
+
+// ── Toast ────────────────────────────────────────────
+function toast(msg, type='ok') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.className = 'toast', 2800);
+}
+
+// ── Modal ────────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  if (id === 'modal-mat') delete document.getElementById('modal-mat').dataset.fromTache;
+}
+
+// ── Format ───────────────────────────────────────────
+function fmt(n) { return (n||0).toLocaleString('fr-CA', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' $'; }
+
+function ouvrirNouveauMatDepuisTache() {
+  closeModal('modal-tache');
+  editingId = null;
+  document.getElementById('modal-mat-title').textContent = 'Nouveau matériau';
+  document.getElementById('mat-nom').value = '';
+  document.getElementById('mat-prix').value = '';
+  document.getElementById('mat-unite').value = '';
+  document.getElementById('modal-mat').dataset.fromTache = '1';
+  openModal('modal-mat');
+}
+
+function refreshMatRowSelects() {
+  document.querySelectorAll('#tache-mat-rows .mat-row select').forEach(sel => {
+    const currentVal = sel.value;
+    sel.innerHTML = materiaux.map(m => `<option value="${m.id}" ${m.id===currentVal?'selected':''}>${m.Nom} (${fmt(m['Prix unitaire'])}/${m['Unite']||'u'})</option>`).join('');
+  });
+  updateTachePreview();
+}
+
+// ── MATÉRIAUX ────────────────────────────────────────
+async function loadMateriaux() {
+  document.getElementById('mat-list').innerHTML = '<div class="loading"><div class="spinner"></div>Chargement...</div>';
+  try {
+    const data = await sbList('materiaux');
+    materiaux = data.sort((a,b) => (a.Nom||'').localeCompare(b.Nom||'', 'fr'));
+    renderMateriaux();
+  } catch(e) { document.getElementById('mat-list').innerHTML = `<div class="loading">Erreur: ${e.message}</div>`; }
+}
+
+function renderMateriaux() {
+  const el = document.getElementById('mat-list');
+  if (!materiaux.length) { el.innerHTML = '<div class="empty-state"><div class="empty-icon">◧</div>Aucun matériau. Ajoutez-en un pour commencer.</div>'; return; }
+  el.innerHTML = `<div class="table-wrap"><table>
+    <thead><tr><th>Nom</th><th>N° produit</th><th>Prix unitaire</th><th>Unité</th><th></th></tr></thead>
+    <tbody>${materiaux.map(m => `<tr>
+      <td data-label="Nom">${m.Nom||''}</td>
+      <td data-label="N° produit" style="font-family:var(--mono);font-size:12px;color:var(--text2)">${m['Numero']||'—'}</td>
+      <td data-label="Prix" class="money">${fmt(m['Prix unitaire'])}</td>
+      <td data-label="Unité"><span class="badge badge-yellow">${m['Unite']||'—'}</span></td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="editMat('${m.id}')">Modifier</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteMat('${m.id}')">Suppr.</button>
+      </td>
+    </tr>`).join('')}</tbody>
+  </table></div>`;
+}
+
+function openModalMat(id=null) {
+  editingId = id;
+  document.getElementById('modal-mat-title').textContent = id ? 'Modifier le matériau' : 'Nouveau matériau';
+  if (id) {
+    const m = materiaux.find(x => x.id === id);
+    document.getElementById('mat-nom').value = m.Nom||'';
+    document.getElementById('mat-numero').value = m['Numero']||'';
+    document.getElementById('mat-prix').value = m['Prix unitaire']||'';
+    document.getElementById('mat-unite').value = m['Unite']||'';
+  } else {
+    document.getElementById('mat-nom').value = '';
+    document.getElementById('mat-numero').value = '';
+    document.getElementById('mat-prix').value = '';
+    document.getElementById('mat-unite').value = '';
+  }
+  openModal('modal-mat');
+}
+
+function editMat(id) { openModalMat(id); }
+
+async function saveMat(reopenTache=false) {
+  const nom = document.getElementById('mat-nom').value.trim();
+  const prixVal = document.getElementById('mat-prix').value;
+  const unite = document.getElementById('mat-unite').value.trim();
+  const numero = document.getElementById('mat-numero').value.trim();
+  if (!nom) { toast('Entrez un nom', 'err'); return; }
+  const fields = { Nom: nom };
+  if (prixVal !== '') fields['Prix unitaire'] = parseFloat(prixVal)||0;
+  if (unite !== '') fields['Unite'] = unite;
+  if (numero !== '') fields['Numero'] = numero;
+  try {
+    if (editingId) await sbUpdate('materiaux', editingId, fields);
+    else await sbInsert('materiaux', fields);
+    closeModal('modal-mat');
+    toast(editingId ? 'Matériau mis à jour' : 'Matériau ajouté');
+    materiaux = (await sbList('materiaux')).sort((a,b) => (a.Nom||'').localeCompare(b.Nom||'', 'fr'));
+    if (reopenTache) {
+      refreshMatRowSelects();
+      openModal('modal-tache');
+    } else {
+      renderMateriaux();
+    }
+  } catch(e) { toast('Erreur: '+e.message, 'err'); }
+}
+
+async function deleteMat(id) {
+  if (!confirm('Supprimer ce matériau ?')) return;
+  try {
+    await sbDelete('materiaux', id);
+    toast('Matériau supprimé');
+    loadMateriaux();
+  } catch(e) { toast('Erreur: '+e.message, 'err'); }
+}
+
+// ── TÂCHES ───────────────────────────────────────────
+async function loadTaches() {
+  document.getElementById('tache-list').innerHTML = '<div class="loading"><div class="spinner"></div>Chargement...</div>';
+  try {
+    if (!materiaux.length) materiaux = (await sbList('materiaux')).sort((a,b) => (a.Nom||'').localeCompare(b.Nom||'', 'fr'));
+    taches = (await sbList('taches')).sort((a,b) => (a.Nom||'').localeCompare(b.Nom||'', 'fr'));
+    renderTaches();
+  } catch(e) { document.getElementById('tache-list').innerHTML = `<div class="loading">Erreur: ${e.message}</div>`; }
+}
+
+function renderTaches() {
+  const el = document.getElementById('tache-list');
+  if (!taches.length) { el.innerHTML = '<div class="empty-state"><div class="empty-icon">◩</div>Aucune tâche. Créez votre première tâche.</div>'; return; }
+  el.innerHTML = `<div class="table-wrap"><table>
+    <thead><tr><th>Nom</th><th>Minutes</th><th>Matériaux</th><th>Coût MO + mat. (taux défaut)</th><th></th></tr></thead>
+    <tbody>${taches.map(t => {
+      let mats = []; try { mats = JSON.parse(t.Materiaux||'[]'); } catch {}
+      const coutMat = mats.reduce((s,m) => s + (m.qty||0)*(m.prixUnit||0), 0);
+      const coutMO = ((t.Heures||0) / 60) * DEFAULT_TAUX;
+      const coutTotal = coutMO + coutMat;
+      return `<tr>
+        <td data-label="Nom">${t.Nom||''}</td>
+        <td data-label="Minutes">${t.Heures||0} min</td>
+        <td data-label="Matériaux"><span class="badge badge-yellow">${countMats(t.Materiaux)} item(s)</span></td>
+        <td data-label="Coût" class="money" style="color:var(--text2)">${fmt(coutTotal)}</td>
+        <td>
+          <button class="btn btn-ghost btn-sm" onclick="editTache('${t.id}')">Modifier</button>
+          <button class="btn btn-ghost btn-sm" onclick="dupliquerTache('${t.id}')">Dupliquer</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteTache('${t.id}')">Suppr.</button>
+        </td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table></div>`;
+}
+
+function countMats(json) {
+  try { return JSON.parse(json||'[]').length; } catch { return 0; }
+}
+
+function openModalTache(id=null) {
+  editingId = id;
+  document.getElementById('modal-tache-title').textContent = id ? 'Modifier la tâche' : 'Nouvelle tâche';
+  document.getElementById('tache-mat-rows').innerHTML = '';
+  if (id) {
+    const t = taches.find(x => x.id === id);
+    document.getElementById('tache-nom').value = t.Nom||'';
+    document.getElementById('tache-heures').value = t.Heures||'';
+    document.getElementById('tache-notes').value = t.Notes||'';
+    try { JSON.parse(t.Materiaux||'[]').forEach(m => addMatRow(m)); } catch {}
+  } else {
+    document.getElementById('tache-nom').value = '';
+    document.getElementById('tache-heures').value = '';
+    document.getElementById('tache-notes').value = '';
+  }
+  updateTachePreview();
+  openModal('modal-tache');
+}
+
+function editTache(id) { openModalTache(id); }
+
+function buildMatOptions(filter='') {
+  const f = filter.toLowerCase();
+  const filtered = materiaux
+    .filter(m => !f || (m.Nom||'').toLowerCase().includes(f) || (m['Numero']||'').toLowerCase().includes(f))
+    .sort((a,b) => (a.Nom||'').localeCompare(b.Nom||'', 'fr'));
+  if (!filtered.length) return `<div class="mat-option-empty">Aucun résultat</div>`;
+  return filtered.map(m => `<div class="mat-option" data-id="${m.id}" data-nom="${m.Nom||''}">
+    <span>${m.Nom||''}</span>
+    <span style="color:var(--text3);font-size:11px;margin-left:6px">${m['Numero'] ? '#'+m['Numero']+' · ' : ''}${fmt(m['Prix unitaire'])}/${m['Unite']||'u'}</span>
+  </div>`).join('');
+}
+
+function attachMatSearch(row, selectedId=null) {
+  const input = row.querySelector('.mat-search-input');
+  const dropdown = row.querySelector('.mat-dropdown');
+  const hidden = row.querySelector('.mat-hidden-id');
+  if (selectedId) {
+    const mat = materiaux.find(m => m.id === selectedId);
+    if (mat) input.value = mat.Nom;
+    hidden.value = selectedId;
+  }
+  input.addEventListener('focus', () => {
+    dropdown.innerHTML = buildMatOptions(input.value);
+    dropdown.classList.add('open');
+    attachOptionClicks(row);
+  });
+  input.addEventListener('input', () => {
+    hidden.value = '';
+    dropdown.innerHTML = buildMatOptions(input.value);
+    dropdown.classList.add('open');
+    attachOptionClicks(row);
+    updateTachePreview();
+  });
+  document.addEventListener('click', function handler(e) {
+    if (!row.contains(e.target)) {
+      dropdown.classList.remove('open');
+      if (!hidden.value) input.value = '';
+    }
+  }, true);
+}
+
+function attachOptionClicks(row) {
+  const dropdown = row.querySelector('.mat-dropdown');
+  const input = row.querySelector('.mat-search-input');
+  const hidden = row.querySelector('.mat-hidden-id');
+  dropdown.querySelectorAll('.mat-option').forEach(opt => {
+    opt.addEventListener('mousedown', e => {
+      e.preventDefault();
+      input.value = opt.dataset.nom;
+      hidden.value = opt.dataset.id;
+      dropdown.classList.remove('open');
+      updateTachePreview();
+    });
+  });
+}
+
+function addMatRow(data=null) {
+  const row = document.createElement('div');
+  row.className = 'mat-row';
+  row.innerHTML = `
+    <div class="mat-search-wrap">
+      <input type="hidden" class="mat-hidden-id" value="${data ? data.matId : ''}">
+      <input type="text" class="mat-search-input" placeholder="Rechercher un matériau...">
+      <div class="mat-dropdown"></div>
+    </div>
+    <input type="number" class="form-input" placeholder="Qté" step="0.01" value="${data ? data.qty : 1}" oninput="updateTachePreview()" style="font-size:12px;padding:7px 8px">
+    <div style="font-size:11px;color:var(--text2);font-family:var(--mono);padding-top:9px" class="mat-subtotal">—</div>
+    <button class="remove-btn" onclick="this.parentElement.remove();updateTachePreview()">×</button>`;
+  document.getElementById('tache-mat-rows').appendChild(row);
+  attachMatSearch(row, data ? data.matId : null);
+  updateTachePreview();
+}
+
+function getTacheMateriaux() {
+  return [...document.querySelectorAll('#tache-mat-rows .mat-row')].map(row => {
+    const matId = row.querySelector('.mat-hidden-id').value;
+    const qty = parseFloat(row.querySelector('input[type="number"]').value)||0;
+    const mat = materiaux.find(m => m.id === matId);
+    return { matId, nomMat: mat ? mat.Nom : '', qty, prixUnit: mat ? (mat['Prix unitaire']||0) : 0 };
+  });
+}
+
+function updateTachePreview() {
+  const minutes = parseFloat(document.getElementById('tache-heures').value)||0;
+  const mats = getTacheMateriaux();
+  let totalMat = 0;
+  document.querySelectorAll('#tache-mat-rows .mat-row').forEach((row, i) => {
+    const sub = mats[i] ? mats[i].qty * mats[i].prixUnit : 0;
+    totalMat += sub;
+    const st = row.querySelector('.mat-subtotal');
+    if (st) st.textContent = fmt(sub);
+  });
+  // Coût au coûtant : main d'oeuvre à taux de référence + matériaux sans marge
+  const coutMO = (minutes / 60) * DEFAULT_TAUX;
+  const prix = coutMO + totalMat;
+  document.getElementById('tache-preview-price').textContent = fmt(prix);
+  return prix;
+}
+
+async function saveTache() {
+  const nom = document.getElementById('tache-nom').value;
+  const minutes = parseFloat(document.getElementById('tache-heures').value)||0;
+  const notes = document.getElementById('tache-notes').value;
+  if (!nom) { toast('Entrez un nom', 'err'); return; }
+  const mats = getTacheMateriaux();
+  // Stocker coût MO au coûtant (sans taux spécifique) et coût matériaux brut
+  const coutMat = mats.reduce((s, m) => s + m.qty * m.prixUnit, 0);
+  const fields = {
+    Nom: nom,
+    Heures: minutes,
+    Materiaux: JSON.stringify(mats),
+    'Prix unitaire': Math.round(coutMat * 100) / 100  // coût matériaux brut stocké
+  };
+  if (notes) fields.Notes = notes;
+  try {
+    if (editingId) await sbUpdate('taches', editingId, fields);
+    else await sbInsert('taches', fields);
+    closeModal('modal-tache');
+    toast(editingId ? 'Tâche mise à jour' : 'Tâche ajoutée');
+    loadTaches();
+  } catch(e) { toast('Erreur: '+e.message, 'err'); }
+}
+
+async function deleteTache(id) {
+  if (!confirm('Supprimer cette tâche ?')) return;
+  try {
+    await sbDelete('taches', id);
+    toast('Tâche supprimée');
+    loadTaches();
+  } catch(e) { toast('Erreur: '+e.message, 'err'); }
+}
+
+async function dupliquerTache(id) {
+  const t = taches.find(x => x.id === id);
+  if (!t) return;
+  const fields = {
+    Nom: (t.Nom||'') + ' (copie)',
+    Heures: t.Heures||0,
+    Materiaux: t.Materiaux||'[]',
+    'Prix unitaire': t['Prix unitaire']||0
+  };
+  if (t.Notes) fields.Notes = t.Notes;
+  try {
+    await sbInsert('taches', fields);
+    toast('Tâche dupliquée');
+    loadTaches();
+  } catch(e) { toast('Erreur: '+e.message, 'err'); }
+}
+
+// ── PROJETS ──────────────────────────────────────────
+async function loadProjets() {
+  document.getElementById('projet-list').innerHTML = '<div class="loading"><div class="spinner"></div>Chargement...</div>';
+  try {
+    if (!taches.length) taches = (await sbList('taches')).sort((a,b) => (a.Nom||'').localeCompare(b.Nom||'', 'fr'));
+    projets = (await sbList('projets')).sort((a,b) => (a.Nom||'').localeCompare(b.Nom||'', 'fr'));
+    renderProjets();
+  } catch(e) { document.getElementById('projet-list').innerHTML = `<div class="loading">Erreur: ${e.message}</div>`; }
+}
+
+function renderProjets() {
+  const el = document.getElementById('projet-list');
+  if (!projets.length) { el.innerHTML = '<div class="empty-state"><div class="empty-icon">◫</div>Aucun projet. Créez votre première estimation.</div>'; return; }
+  el.innerHTML = `<div class="table-wrap"><table>
+    <thead><tr><th>Projet</th><th>Client</th><th>Date</th><th>Tâches</th><th>Total</th><th></th></tr></thead>
+    <tbody>${projets.map(p => `<tr style="cursor:pointer" onclick="ouvrirProjet('${p.id}')">
+      <td data-label="Projet" style="font-weight:500;color:var(--accent)">${p.Nom||''}</td>
+      <td data-label="Client">${p.Client||'—'}</td>
+      <td data-label="Date">${p.Date||'—'}</td>
+      <td data-label="Tâches"><span class="badge badge-green">${countMats(p.Taches)} tâche(s)</span></td>
+      <td data-label="Total" class="money" style="font-weight:600">${fmt(p['Prix total'])}</td>
+      <td onclick="event.stopPropagation()">
+        <button class="btn btn-ghost btn-sm" onclick="editProjet('${p.id}')">Modifier</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteProjet('${p.id}')">Suppr.</button>
+      </td>
+    </tr>`).join('')}</tbody>
+  </table></div>`;
+}
+
+async function ouvrirFormProjet(id=null) {
+  editingId = id;
+  if (!taches.length) {
+    if (!materiaux.length) materiaux = (await sbList('materiaux')).sort((a,b) => (a.Nom||'').localeCompare(b.Nom||'', 'fr'));
+    taches = (await sbList('taches')).sort((a,b) => (a.Nom||'').localeCompare(b.Nom||'', 'fr'));
+  }
+  document.getElementById('form-proj-titre').textContent = id ? 'Modifier le projet' : 'Nouveau projet';
+  document.getElementById('form-proj-sub').textContent = id ? 'Modifiez les informations du projet' : 'Remplissez les informations du projet';
+  document.getElementById('proj-tache-rows').innerHTML = '';
+  document.getElementById('proj-empty-taches').style.display = 'none';
+  if (id) {
+    const p = projets.find(x => x.id === id);
+    document.getElementById('proj-nom').value = p.Nom||'';
+    document.getElementById('proj-client').value = p.Client||'';
+    document.getElementById('proj-date').value = p.Date||'';
+    document.getElementById('proj-notes').value = p.Notes||'';
+    document.getElementById('proj-taux').value = p.Taux || DEFAULT_TAUX;
+    document.getElementById('proj-marge').value = p.Marge !== undefined ? p.Marge : DEFAULT_MARGE;
+    try { JSON.parse(p.Taches||'[]').forEach(t => addTacheRow(t)); } catch {}
+  } else {
+    document.getElementById('proj-nom').value = '';
+    document.getElementById('proj-client').value = '';
+    document.getElementById('proj-date').value = new Date().toISOString().split('T')[0];
+    document.getElementById('proj-notes').value = '';
+    document.getElementById('proj-taux').value = DEFAULT_TAUX;
+    document.getElementById('proj-marge').value = DEFAULT_MARGE;
+  }
+  updateProjPreview();
+  showPage('form-projet');
+}
+
+function editProjet(id) { ouvrirFormProjet(id); }
+function editProjetCourant() { if (projetCourantId) ouvrirFormProjet(projetCourantId); }
+
+function addTacheRow(data=null) {
+  const row = document.createElement('div');
+  row.className = 'task-row' + (data ? '' : ' task-row-pending');
+
+  // Option vide seulement pour les nouvelles lignes (pas les lignes chargées)
+  const emptyOpt = data ? '' : '<option value="" disabled selected>— Choisir une tâche —</option>';
+  const opts = emptyOpt + taches.map(t => `<option value="${t.id}" ${data && data.tacheId===t.id ? 'selected' : ''}>${t.Nom}</option>`).join('');
+  const defaultTache = data ? taches.find(t => t.id === data.tacheId) : null;
+  const metaText = defaultTache ? `${defaultTache.Heures||0} min · ${countMats(defaultTache.Materiaux)} matériau(x)` : '';
+  const uid = Math.random().toString(36).slice(2);
+
+  if (data) {
+    // Ligne existante (chargée depuis Airtable) — affichage normal
+    row.innerHTML = `
+      <div>
+        <select class="form-input" onchange="onTacheRowChange(this)" style="margin-bottom:4px">${opts}</select>
+        <div class="task-row-meta" id="tm-${uid}">${metaText}</div>
+      </div>
+      <div class="task-qty-wrap">
+        <span class="task-qty-label">Qté</span>
+        <input type="number" class="form-input" placeholder="1" min="1" step="1" value="${data.qty}" oninput="updateProjPreview()" style="text-align:center">
+      </div>
+      <div class="task-price">—</div>
+      <button class="remove-btn" onclick="this.parentElement.remove();updateProjPreview()">×</button>`;
+  } else {
+    // Nouvelle ligne — sélection + confirmer requis
+    row.innerHTML = `
+      <div>
+        <select class="form-input" onchange="onTacheRowChange(this)" style="margin-bottom:4px">${opts}</select>
+        <div class="task-row-meta" id="tm-${uid}" style="color:var(--text3);font-style:italic">Sélectionnez une tâche</div>
+      </div>
+      <div class="task-qty-wrap">
+        <span class="task-qty-label">Qté</span>
+        <input type="number" class="form-input" placeholder="1" min="1" step="1" value="1" style="text-align:center">
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="confirmerTacheRow(this)" style="white-space:nowrap">Confirmer</button>
+      <button class="remove-btn" onclick="this.parentElement.remove();updateProjPreview()">×</button>`;
+  }
+
+  const container = document.getElementById('proj-tache-rows');
+  container.insertBefore(row, container.firstChild);
+  document.getElementById('proj-empty-taches').style.display = 'none';
+  if (data) updateProjPreview();
+}
+
+function confirmerTacheRow(btn) {
+  const row = btn.closest('.task-row');
+  const sel = row.querySelector('select');
+  if (!sel.value) { toast('Sélectionnez une tâche', 'err'); return; }
+  const tache = taches.find(t => t.id === sel.value);
+  if (!tache) return;
+  const qty = parseInt(row.querySelector('input[type="number"]').value) || 1;
+  const uid = Math.random().toString(36).slice(2);
+  const metaText = `${tache.Heures||0} min · ${countMats(tache.Materiaux)} matériau(x)`;
+
+  row.classList.remove('task-row-pending');
+  row.innerHTML = `
+    <div>
+      <select class="form-input" onchange="onTacheRowChange(this)" style="margin-bottom:4px">
+        ${taches.map(t => `<option value="${t.id}" ${t.id===tache.id ? 'selected' : ''}>${t.Nom}</option>`).join('')}
+      </select>
+      <div class="task-row-meta" id="tm-${uid}">${metaText}</div>
+    </div>
+    <div class="task-qty-wrap">
+      <span class="task-qty-label">Qté</span>
+      <input type="number" class="form-input" placeholder="1" min="1" step="1" value="${qty}" oninput="updateProjPreview()" style="text-align:center">
+    </div>
+    <div class="task-price">—</div>
+    <button class="remove-btn" onclick="this.parentElement.remove();updateProjPreview()">×</button>`;
+  updateProjPreview();
+}
+
+function onTacheRowChange(sel) {
+  const row = sel.closest('.task-row');
+  const tache = taches.find(t => t.id === sel.value);
+  const metaEl = row.querySelector('.task-row-meta');
+  if (metaEl && tache) metaEl.textContent = `${tache.Heures||0} min · ${countMats(tache.Materiaux)} matériau(x)`;
+  updateProjPreview();
+}
+
+function getProjTaches() {
+  const taux = parseFloat(document.getElementById('proj-taux').value) || 0;
+  const marge = parseFloat(document.getElementById('proj-marge').value) || 0;
+  return [...document.querySelectorAll('#proj-tache-rows .task-row')].map(row => {
+    const sel = row.querySelector('select');
+    const qty = parseInt(row.querySelector('input').value)||1;
+    const tache = taches.find(t => t.id === sel.value);
+    if (!tache) return { tacheId: sel.value, nomTache: '', qty, prixUnit: 0, minutes: 0, coutMat: 0 };
+    let mats = [];
+    try { mats = JSON.parse(tache.Materiaux||'[]'); } catch {}
+    const minutes = tache.Heures || 0;
+    const coutMat = mats.reduce((s, m) => s + (m.qty||0) * (m.prixUnit||0), 0);
+    const prixMO = (minutes / 60) * taux;
+    const prixMat = coutMat * (1 + marge / 100);
+    const prixUnit = prixMO + prixMat;
+    return { tacheId: sel.value, nomTache: tache.Nom, qty, prixUnit: Math.round(prixUnit*100)/100, minutes, coutMat };
+  });
+}
+
+function updateProjPreview() {
+  const taux = parseFloat(document.getElementById('proj-taux').value) || 0;
+  const marge = parseFloat(document.getElementById('proj-marge').value) || 0;
+  const items = getProjTaches();
+  let totalMO = 0, totalMatBrut = 0, totalMatFacture = 0, total = 0;
+  document.querySelectorAll('#proj-tache-rows .task-row:not(.task-row-pending)').forEach((row, i) => {
+    const item = items[i];
+    if (!item) return;
+    const sub = item.qty * item.prixUnit;
+    const moSub = item.qty * (item.minutes / 60) * taux;
+    const matBrutSub = item.qty * item.coutMat;
+    const matFactureSub = matBrutSub * (1 + marge / 100);
+    totalMO += moSub;
+    totalMatBrut += matBrutSub;
+    totalMatFacture += matFactureSub;
+    total += sub;
+    const tp = row.querySelector('.task-price');
+    if (tp) tp.textContent = fmt(sub);
+  });
+  const profitMat = totalMatFacture - totalMatBrut;
+  document.getElementById('proj-preview-mo').textContent = fmt(totalMO);
+  document.getElementById('proj-preview-mat').textContent = fmt(totalMatFacture);
+  const profitEl = document.getElementById('proj-preview-profit');
+  if (profitEl) profitEl.textContent = fmt(profitMat);
+  document.getElementById('proj-preview-price').textContent = fmt(total);
+  return total;
+}
+
+async function saveProjet() {
+  const nom = document.getElementById('proj-nom').value;
+  if (!nom) { toast('Entrez un nom de projet', 'err'); return; }
+  const taux = parseFloat(document.getElementById('proj-taux').value) || 0;
+  const marge = parseFloat(document.getElementById('proj-marge').value) || 0;
+  const items = getProjTaches();
+  const total = items.reduce((s, i) => s + i.qty * i.prixUnit, 0);
+  const fields = {
+    Nom: nom,
+    Client: document.getElementById('proj-client').value,
+    Date: document.getElementById('proj-date').value,
+    Notes: document.getElementById('proj-notes').value,
+    Taches: JSON.stringify(items),
+    'Prix total': Math.round(total*100)/100,
+    Taux: taux,
+    Marge: marge
+  };
+  try {
+    if (editingId) await sbUpdate('projets', editingId, fields);
+    else await sbInsert('projets', fields);
+    toast(editingId ? 'Projet mis à jour' : 'Projet créé');
+    await loadProjets();
+    showPage('projets');
+  } catch(e) { toast('Erreur: '+e.message, 'err'); }
+}
+
+async function deleteProjet(id) {
+  if (!confirm('Supprimer ce projet ?')) return;
+  try {
+    await sbDelete('projets', id);
+    toast('Projet supprimé');
+    loadProjets();
+  } catch(e) { toast('Erreur: '+e.message, 'err'); }
+}
+
+let projetCourantId = null;
+
+function editProjetCourant() {
+  if (projetCourantId) editProjet(projetCourantId);
+}
+
+function ouvrirProjet(id) {
+  projetCourantId = id;
+  const p = projets.find(x => x.id === id);
+  let items = [];
+  try { items = JSON.parse(p.Taches||'[]'); } catch {}
+  const taux = p.Taux || 0;
+  const marge = p.Marge !== undefined ? p.Marge : 0;
+
+  // Calcul totaux
+  let totalMO = 0, totalMatBrut = 0, totalMatFacture = 0;
+  items.forEach(item => {
+    totalMO += item.qty * (item.minutes||0) / 60 * taux;
+    totalMatBrut += item.qty * (item.coutMat||0);
+    totalMatFacture += item.qty * (item.coutMat||0) * (1 + marge/100);
+  });
+  const profitMat = totalMatFacture - totalMatBrut;
+  const total = p['Prix total'] || 0;
+
+  // En-tête
+  document.getElementById('detail-proj-titre').textContent = p.Nom || 'Projet';
+  document.getElementById('detail-proj-sub').textContent = `${p.Client||'Client inconnu'} · ${p.Date||''}`;
+
+  // Corps — tâches en cards aérées
+  const tacheCards = items.length ? items.map(item => {
+    const sousTotal = item.qty * item.prixUnit;
+    const moItem = item.qty * (item.minutes||0) / 60 * taux;
+    const matBrutItem = item.qty * (item.coutMat||0);
+    const matItem = matBrutItem * (1 + marge/100);
+    const heuresDisplay = item.minutes >= 60
+      ? `${Math.floor(item.minutes/60)}h${item.minutes%60 > 0 ? (item.minutes%60)+'min' : ''}`
+      : `${item.minutes||0} min`;
+    return `<div class="tache-card">
+      <div class="tache-card-header">
+        <div class="tache-card-left">
+          <div class="tache-card-qty">×${item.qty}</div>
+          <div class="tache-card-nom">${item.nomTache||'—'}</div>
+        </div>
+        <div class="tache-card-total">${fmt(sousTotal)}</div>
+      </div>
+      <div class="tache-card-body">
+        <div class="tache-card-detail">
+          <span class="tache-detail-label">Prix unitaire</span>
+          <span class="tache-detail-val money">${fmt(item.prixUnit)}</span>
+        </div>
+        <div class="tache-card-detail">
+          <span class="tache-detail-label">Main d'oeuvre</span>
+          <span class="tache-detail-val money">${fmt(moItem)}</span>
+        </div>
+        <div class="tache-card-detail">
+          <span class="tache-detail-label">Matériaux</span>
+          <span class="tache-detail-val money">${fmt(matItem)}</span>
+        </div>
+        <div class="tache-card-detail">
+          <span class="tache-detail-label">Temps unitaire</span>
+          <span class="tache-detail-val">${heuresDisplay}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('') : '<div class="empty-state">Aucune tâche dans ce projet</div>';
+
+  document.getElementById('detail-proj-body').innerHTML = `
+    <div class="proj-meta-bar">
+      <div class="proj-meta-item"><span class="proj-meta-label">Taux horaire</span><span class="proj-meta-val">${taux} $/h</span></div>
+      <div class="proj-meta-item"><span class="proj-meta-label">Marge matériaux</span><span class="proj-meta-val">${marge}%</span></div>
+      <div class="proj-meta-item"><span class="proj-meta-label">Main d'oeuvre</span><span class="proj-meta-val money">${fmt(totalMO)}</span></div>
+      <div class="proj-meta-item"><span class="proj-meta-label">Matériaux facturés</span><span class="proj-meta-val money">${fmt(totalMatFacture)}</span></div>
+      <div class="proj-meta-item"><span class="proj-meta-label">Profit matériaux</span><span class="proj-meta-val money" style="color:var(--success)">${fmt(profitMat)}</span></div>
+      <div class="proj-meta-item"><span class="proj-meta-label">Total</span><span class="proj-meta-val money" style="color:var(--accent);font-size:20px">${fmt(total)}</span></div>
+    </div>
+    ${p.Notes ? `<div class="proj-notes-bar">${p.Notes}</div>` : ''}
+    <div class="tache-cards-grid">${tacheCards}</div>`;
+
+  showPage('detail-projet');
+}
+
+function detailProjet(id) { ouvrirProjet(id); }
+
+// ── DASHBOARD ────────────────────────────────────────
+async function loadDashboard() {
+  try {
+    const [rMat, rTach, rProj] = await Promise.all([sbList('materiaux'), sbList('taches'), sbList('projets')]);
+    materiaux = rMat;
+    taches = rTach;
+    projets = rProj;
+    document.getElementById('stat-mat').textContent = materiaux.length;
+    document.getElementById('stat-tach').textContent = taches.length;
+    document.getElementById('stat-proj').textContent = projets.length;
+    const recent = projets.slice(-5).reverse();
+    if (!recent.length) {
+      document.getElementById('recent-projets').innerHTML = '<div class="empty-state"><div class="empty-icon">◫</div>Aucun projet pour l\'instant.</div>';
+    } else {
+      document.getElementById('recent-projets').innerHTML = `<div class="card" style="padding:0"><div class="table-wrap"><table>
+        <thead><tr><th>Projet</th><th>Client</th><th>Total</th></tr></thead>
+        <tbody>${recent.map(p => `<tr>
+          <td style="font-weight:500">${p.Nom||''}</td>
+          <td>${p.Client||'—'}</td>
+          <td class="money" style="color:var(--accent)">${fmt(p['Prix total'])}</td>
+        </tr>`).join('')}</tbody>
+      </table></div></div>`;
+    }
+  } catch(e) {
+    document.getElementById('recent-projets').innerHTML = `<div class="loading">Erreur de connexion Supabase: ${e.message}</div>`;
+  }
+}
+
+// ── CONFIG ───────────────────────────────────────────
+function loadConfig() {
+  document.getElementById('cfg-taux').value = DEFAULT_TAUX;
+  document.getElementById('cfg-marge').value = DEFAULT_MARGE;
+  document.getElementById('cfg-token').value = SB_KEY;
+  document.getElementById('cfg-baseid').value = SB_URL;
+}
+
+function saveConfig() {
+  DEFAULT_TAUX = parseFloat(document.getElementById('cfg-taux').value)||85;
+  DEFAULT_MARGE = parseFloat(document.getElementById('cfg-marge').value)||20;
+  localStorage.setItem('default_taux', DEFAULT_TAUX);
+  localStorage.setItem('default_marge', DEFAULT_MARGE);
+  toast('Valeurs par défaut enregistrées');
+}
+
+function saveAirtableConfig() {
+  const newKey = document.getElementById('cfg-token').value;
+  localStorage.setItem('sb_key', newKey);
+  toast('Connexion Supabase mise à jour — rechargez la page');
+}
+
+// ── Init ─────────────────────────────────────────────
+loadDashboard();
+</script>
+</body>
+</html>
